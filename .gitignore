@@ -1,0 +1,9 @@
+cache/*
+logs/*
+.idea/
+.DS_Store
+*.o
+*.a
+*.swp
+*.swo
+*.swn
