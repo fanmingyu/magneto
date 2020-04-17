@@ -1,0 +1,94 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('index/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>用户列表</h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/user/add">添加用户</a>
+</div>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="350">邮箱</th>
+            <th width="100">角色</th>
+            <th width="120">手机号</th>
+            <th width="200">微信公众号</th>
+            <th width="200">微信企业号</th>
+            <th width="200">创建时间</th>
+            <th width="200">更新时间</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in userInfo %}
+    <tr>
+        <td>{{item['id']}}</td>
+        <td>{{item['email']}}</td>
+        <td>{{item['role']}}</td>
+        <td>{{item['mobile'] | default('-')}}</td>
+        <td>
+            {% if weixinUser[item['email']] is defined %}
+                已关注
+                (
+                {% for departmentId in weixinUser[item['email']]['department'] %}
+                    {{weixinDepartment[departmentId]['name']}}
+                {% endfor %}
+                )
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            {% if corpWeixinUser[item['email']] is defined %}
+            已关联 ( {{corpWeixinUser[item['email']]['name']}} )
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>{{ date('Y-m-d H:i:s', item['createtime']) }}</td>
+        <td><?php echo $item['updatetime'] ? date('Y-m-d H:i:s', $item['updatetime']) : '-'; ?></td>
+        <td>
+            <a href="/user/edit?id={{item['id']}}">修改</a>
+            &nbsp;
+            <a href="/user/delete?id={{item['id']}}" onclick="return confirm('确定要删除？');">删除</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h3>系统中不存在的微信用户</h3>
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="200">userId</th>
+            <th width="200">name</th>
+            <th width="200">分组</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in userOnlyInWeixin %}
+    <tr>
+        <td>{{item['userid']}}</td>
+        <td>{{item['name']}}</td>
+        <td>
+                {% for departmentId in item['department'] %}
+                    {{weixinDepartment[departmentId]['name']}}
+                {% endfor %}
+        </td>
+        <td></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

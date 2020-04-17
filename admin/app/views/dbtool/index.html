@@ -1,0 +1,63 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Dbtool{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation" class="active"><a href="/dbtool">表列表</a></li>
+    <li role="presentation"{% if controller == 'dbconfig' %} class="active"{% endif %}><a href="/dbconfig">数据库</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/tablesorter/style.css" type="text/css" />
+<script src="/static/tablesorter/jquery.tablesorter.js"></script>
+<script>
+$(function() {
+    $('table:first').tablesorter({headers: {}});
+});
+</script>
+
+<h2>{{db}}库表列表</h2>
+
+<h4><small>共{{count(tables)}}张表，约{{number_format(count)}}行数据</small></h4>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <div class="btn-group">
+        <button type="button" class="btn btn-default">{{db}}</button>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" style="overflow-y:auto;">
+            {% for key, value in dbList %}
+                <li><a href="?db={{value}}">{{value}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th width="320">表名</th>
+            <th width="100">行数</th>
+            <th width="100">存储</th>
+            <th width="200">操作</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for tableName, value in tables %}
+    <tr>
+        <td><a href="/dbtool/structure/?db={{db}}&table=<?php echo $tableName; ?>"><?php echo $tableName; ?></a></td>
+        <td><?php echo number_format($tableStat[$tableName]['TABLE_ROWS']); ?></td>
+        <td><?php echo number_format(($tableStat[$tableName]['DATA_LENGTH'] + $tableStat[$tableName]['INDEX_LENGTH']) / 1024 / 1024, 1); ?> MB</td>
+        <td><a href="/dbtool/structure/?db={{db}}&table={{tableName}}">查看表结构</a></td>
+        <td></td>
+    </tr>
+    {% endfor %}
+    <tbody>
+</table>
+{% endblock %}

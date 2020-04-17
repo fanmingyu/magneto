@@ -1,0 +1,95 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<link href="/static/jquery-ui/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/tokenfield-typeahead.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/pygments-manni.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/docs.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/static/tokenfield/dist/bootstrap-tokenfield.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/scrollspy.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/affix.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/typeahead.bundle.min.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/docs.min.js"></script>
+
+<script type="text/javascript">
+$(function() {
+    $('#pointsInput').tokenfield({
+        autocomplete: {
+            source: {{json_encode(names)}},
+            delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        delimiter: [' ']
+    });
+});
+</script>
+
+<?php if (empty($config)) { ?>
+<div class="alert alert-danger" role="alert">该监控点还未添加到配置中。<a href="/monitor/add?name={{name}}">立即添加</a></div>
+<?php } //endif ?>
+
+<h2>{{config['title']}} </h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="#" onclick="location.reload();return false;"><span class="glyphicon glyphicon-refresh"></span></a>
+    <a class="btn btn-default" href="/monitor/edit?id={{config['id']}}">修改配置</a>
+    <a class="btn btn-default" href="/monitor/alarmEdit?id={{config['id']}}">设置告警</a>
+
+    <div class="btn-group">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            添加到视图
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% for item in allViews %}
+            <li><a href="/monitorview/edit?id={{item['id']}}&point={{name}}">{{item['title']}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th width="130">负责人</th>
+        <td style="word-spacing:10px;">{{config['owner']}}</td>
+    </tr>
+    <tr>
+        <th>所在视图</th>
+        <td>
+            {% for item in views %}
+                <a href="/monitorview/detail?id={{item['id']}}">{{item['title']}}</a> &nbsp;
+            {% else %}
+                <span class="text-muted">没有视图调用</span>
+            {% endfor %}
+        </td>
+    </tr>
+    <tr>
+        <th>开始记录时间</th>
+        <td>{{statInfo['starttime']}}</td>
+    </tr>
+    <tr>
+        <th>最后记录时间</th>
+        <td>{{statInfo['endtime']}}</td>
+    </tr>
+</table>
+
+<form action="/monitor/detail" class="form-inline" style="margin:0 0 10px 0;">
+    <div class="form-group">
+        <input type="text" name="name" class="form-control input-sm" style="width:800px;" id="pointsInput" value="{{name}}" />
+        <button type="submit" class="btn btn-default input-sm" style="font-size:12px;">提交</button>
+    </div>
+</form>
+
+<div>
+    <iframe src="/monitor/chart?name={{urlencode(name)}}" width="1140" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+
+<style>
+td { vertical-align: middle !important; }
+</style>
+
+<h2>监控列表
+    <small>
+        &nbsp;/&nbsp;
+        <a href="/monitor/undefined">未配置的监控点</a>
+    </small>
+</h2>
+
+<div style="height:42px; line-height:30px;">
+    <span class="label label-default"> 共 {{count}} 个 </span>
+    <form class="form-inline pull-right" action="/monitor">
+        <div class="form-group">
+            <input type="text" class="form-control" name="key" value="{{key|escape}}" style="width:380px;" placeholder="输入关键字" />
+        </div>
+        <button type="submit" class="btn btn-default">搜索</button>
+        <a class="btn btn-success" href="/monitor/add">添加监控</a>
+    </form>
+</div>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="550">描述</th>
+            <th width="200">所属视图</th>
+            <th width="80">告警</th>
+            <th width="80"><a href="?<?php echo http_build_query(array('sort' => 1) + $_GET); ?>" title="点击排序">最近数值</a></th>
+            <th>负责人</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in config %}
+    <tr>
+        <td>{{item['id']}}</td>
+        <td>
+            <a href="/monitor/detail?name={{item['name']}}">{{item['title']}}</a>
+            <br />
+            <small class="text-muted">{{item['name']}}</small>
+        </td>
+        <td>
+        {% if pointViews[item['name']][0] is defined %}
+            <a href="/monitorview/detail?id={{viewConfig[pointViews[item['name']][0]]['id']}}">{{viewConfig[pointViews[item['name']][0]]['title']}}</a>
+            <?php if ((count($pointViews[$item['name']])) > 1) { ?>
+                <small class="text-muted">等<?php echo count($pointViews[$item['name']]); ?>个视图</small>
+            <?php } //endif ?>
+        {% else %}
+            -
+        {% endif %}
+        </td>
+        <td>{% if alarmCount[item['id']] is defined %}<a href="/monitor/alarmEdit?id={{item['id']}}">{{alarmCount[item['id']]}}</a>{% endif %}</td>
+        <td>{{item['lastvalue']}}</td>
+        <td title="{{item['owner']}}"><?php echo preg_replace('/\s.*$/', ' <small class="text-muted">等'.(substr_count($item['owner'], ' ') + 1).'人</small>', $item['owner']); ?></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        <li>
+            <a href="/monitor?<?php echo http_build_query(array('page' => max($page - 1, 1)) + $_GET); ?>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <?php for ($i = 1; $i <= $pageCount; $i++) {?>
+            <li {% if i === page %}class="active"{% endif %}><a href="/monitor?<?php echo http_build_query(array('page' => $i) + $_GET); ?>">{{i}}</a></li>
+        <?php } //endfor ?>
+        <li>
+           <a href="/monitor?<?php echo http_build_query(array('page' => min($page + 1, $pageCount)) + $_GET); ?>" aria-label="Next">
+               <span aria-hidden="true">&raquo;</span>
+           </a>
+        </li>
+    </ul>
+</nav>
+
+{% endblock %}

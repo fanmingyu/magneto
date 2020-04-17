@@ -1,0 +1,57 @@
+{% extends "common/layout.html" %}
+
+{% block title %}数据库列表{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation" {% if controller == 'dbtool' %} class="active"{% endif %}><a href="/dbtool">表列表</a></li>
+    <li role="presentation"{% if controller == 'dbconfig' %} class="active"{% endif %}><a href="/dbconfig">数据库</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h2>数据库列表</h2>
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/dbconfig/add">添加库信息</a>
+</div>
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+    <tr>
+        <th width="60">编号</th>
+        <th width="140">库名</th>
+        <th width="160">用户名</th>
+        <th width="60">端口号</th>
+        <th width="80">host</th>
+        <th width="110">创建时间</th>
+        <th width="110">更新时间</th>
+        <th width="100">类型</th>
+        <th width="100">别名</th>
+        <th width="120">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in dbConfig %}
+    <tr>
+        <td>{{item['id']}}</td>
+        <td>
+            <a href="/dbtool?db={{item['alias']}}">
+                {{item['dbname']}}
+            </a>
+        </td>
+        <td>{{item['username']}}</td>
+        <td>{{item['port']}}</td>
+        <td>{{item['host']}}</td>
+        <td>{{item['create_date']}}</td>
+        <td>{{item['update_date']}}</td>
+        <td>{{item['type']}}</td>
+        <td>{{item['alias']}}</td>
+        <td>
+            <a href="/dbconfig/edit?id={{item['id']}}" >修改</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/dbconfig/delete?id={{item['id']}}" onclick="return confirm('确定要删除？');">删除</a>
+        </td >
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

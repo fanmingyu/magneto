@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <script src="/static/common/js/jquery.min.js"></script>
+    <script src="/static/common/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/static/common/css/bootstrap.min.css">
+</head>
+<body style="overflow-y:scroll">
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="{% if fullscreen is empty %}container{% else %}container-fluid{% endif %}">
+        <ul class="nav navbar-nav">
+            <li role="presentation"{% if controller === 'index' %} class="active"{% endif %}><a href="/">首页</a></li>
+        </ul>
+        {% block nav %}{% endblock %}
+        <p class="nav navbar-text navbar-right">
+            <a href="/user/editSelf">{{loginUserInfo['email']}}</a>
+            <?php if (empty($loginUserInfo['mobile'])) { ?>
+                <a href="/user/editSelf" style="color:red;">设置手机号并关注微信，否则无法接收告警</a>
+            <?php } //endif ?>
+            &nbsp;&nbsp;
+        </p>
+    </div>
+</nav>
+<div class="{% if fullscreen is empty %}container{% else %}container-fluid{% endif %} small">
+{% block content %}{% endblock %}
+
+<div style="text-align:center; margin:20px; 0; clear:both; font-size:12px; color:#aaa; word-spacing:5px;">
+    <i>
+    <?php echo date('Y-m-d H:i:s'); ?>
+    <?php echo number_format(round((microtime(true) - APP_START_TIME) * 1000)); ?>ms
+    </i>
+</div>
+</div>
+</body>
+</html>

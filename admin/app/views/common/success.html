@@ -1,0 +1,18 @@
+{% extends "common/layout.html" %}
+
+{% block title %}操作成功{% endblock %}
+
+{% block nav %}
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-success" role="alert">
+        <b>{{message}}</b>
+        &nbsp; &nbsp; &nbsp;
+        即将跳转 <a href="{{url}}">{{url}}</a>
+    </div>
+
+<script language="javascript">
+    setTimeout("location.href='{{addslashes(addslashes(url))}}'", {{time}});
+</script>
+{% endblock %}

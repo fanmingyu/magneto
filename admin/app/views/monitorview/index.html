@@ -1,0 +1,39 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>视图列表</h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/monitorview/add">创建视图</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="200">描述</th>
+            <th width="80">监控点</th>
+            <th width="80">截图推送</th>
+            <th>负责人</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for id, item in configAll %}
+    <tr>
+        <td>{{id}}</td>
+        <td><a href="/monitorview/detail?id={{item['id']}}">{{item['title']}}</a></td>
+        <td>{% if viewCount[id] is defined %} {{viewCount[id]}} {% else %} 0 {% endif %}</td>
+        <td>{% if item['capture_switch'] %}已开启{% else %}否{% endif %}</td>
+        <td>{{item['owner']}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

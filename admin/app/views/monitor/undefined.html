@@ -1,0 +1,51 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/tablesorter/style.css" type="text/css" />
+<script src="/static/tablesorter/jquery.tablesorter.js"></script>
+
+<script>
+$(function() {
+    $('#list').tablesorter({
+        headers: { 3:{sorter:false}, 5: {sorter: false} }
+    });
+});
+</script>
+
+<h2>未配置的监控列点</h2>
+
+<h4><small style="font-size:12px;">最后更新于{{ date('Y-m-d H:i', scanTime) }} (共{{count(keys)}}个)</small></h4>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="400">KEY</th>
+            <th>idle时间(s)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key, value in keys %}
+    <tr>
+        <td> - </td>
+        <td><a href="/monitor/detail?name={{key}}">{{key}}</a></td>
+        <td>{{keysIdleTime[key]}}</td>
+        <td class="text-nowrap">
+            <a href="/monitor/add?name={{key}}">添加</a>
+            <?php if (isset($_GET['quick'])) { ?>
+                &nbsp; <a href="/monitor/save?name={{key}}&title={{key}}&owner={{loginUserInfo['email']}}">快速添加</a>
+            <?php } //endif ?>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Weixin{% endblock %}
+
+{% block nav %}
+{{ partial('index/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>微信应用列表</h2>
+
+<style>
+.applogo { width:50px; height:50px; border-radius:5px; }
+</style>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/weixin/department">微信部门列表</a>
+</div>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="100">Logo</th>
+            <th width="200">名称</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in result %}
+        <tr>
+            <td></td>
+            <!--td>{{item['agentid']}}</td-->
+            <td><img src='{{item['square_logo_url']}}' class="applogo" /></td>
+            <td>{{item['name']}}</td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

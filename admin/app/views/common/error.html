@@ -1,0 +1,22 @@
+{% extends "common/layout.html" %}
+
+{% block title %}操作失败{% endblock %}
+
+{% block nav %}
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-danger" role="alert">
+        <b>{{message}}</b>
+        &nbsp; &nbsp; &nbsp;
+        {% if url is not empty %}
+            即将跳转<a href="{{url}}">{{url}}</a>
+        {% endif %}
+    </div>
+
+{% if url is not empty %}
+<script language="javascript">
+    setTimeout("location.href='{{url}}'", {{time}});
+</script>
+{% endif %}
+{% endblock %}

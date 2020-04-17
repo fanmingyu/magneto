@@ -1,0 +1,64 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Alarm{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation"><a href="/alarm">告警列表</a></li>
+    <li role="presentation"><a href="/alarm/add">添加告警</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/tablesorter/style.css" type="text/css" />
+<script src="/static/tablesorter/jquery.tablesorter.js"></script>
+
+<script>
+$(function() {
+    $('table:first').tablesorter({headers: {
+        0: {sorter: false},
+        1: {sorter: false},
+        2: {sorter: false},
+        8: {sorter: false}
+    }});
+});
+</script>
+
+<h2>告警列表</h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/alarm/add">添加告警</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="120">告警KEY</th>
+            <th width="200">描述</th>
+            <th width="100">发送间隔</th>
+            <th width="130">邮件触发限制</th>
+            <th width="130">短信触发限制</th>
+            <th width="100">未发告警</th>
+            <th width="170">最后发送时间</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($result as $item) { ?>
+        <tr>
+            <td><?php echo $item['id']; ?></td>
+            <td><a href="/alarm/detail?id=<?php echo $item['id']; ?>"><?php echo $item['name']; ?></a></td>
+            <td><a href="/alarm/detail?id=<?php echo $item['id']; ?>"><?php echo $item['title']; ?></a></td>
+            <td><?php echo $item['time_limit']; ?>秒</td>
+            <td><?php echo $item['trigger_limit']; ?></td>
+            <td><?php echo $item['sms_trigger_limit']; ?></td>
+            <td><b style="color:red;"><?php echo $item['count']; ?></b></td>
+            <td><?php echo $item['lastTime'] ? date('Y-m-d H:i:s', $item['lastTime']) : '-'; ?></td>
+            <td class="text-nowrap">
+            </td>
+        </tr>
+        <?php } //endforeach ?>
+    </tbody>
+</table>
+{% endblock %}

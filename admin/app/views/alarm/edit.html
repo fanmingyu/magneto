@@ -1,0 +1,86 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Alarm{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation"><a href="/alarm">告警列表</a></li>
+    <li role="presentation"><a href="/alarm/add">添加告警</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<link href="/static/jquery-ui/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/tokenfield-typeahead.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/pygments-manni.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/docs.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/static/tokenfield/dist/bootstrap-tokenfield.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/scrollspy.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/affix.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/typeahead.bundle.min.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/docs.min.js"></script>
+<script type="text/javascript">
+$(function() {
+    $('#emailinput').tokenfield({
+        autocomplete: {
+            source: {{json_encode(emails)}},
+            delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        delimiter: [' ']
+    });
+});
+</script>
+<h2>配置告警</h2>
+
+<form action="/alarm/save" class="form-horizontal" style="margin:50px 0 0 0;" method="post">
+
+<input type="hidden" name="id" value="{{config['id']}}" />
+
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">描述</label>
+    <div class="col-sm-10">
+        <input type="input" name="title" class="form-control" value="{{config['title']}}" placeholder="如：订单业务告警" required />
+    </div>
+</div>
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">告警KEY</label>
+    <div class="col-sm-10">
+        <input type="input" name="name" class="form-control" value="{{config['name']}}" placeholder="如：ORDER_ADD" required />
+    </div>
+</div>
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">负责人</label>
+    <div class="col-sm-10">
+        <input type="input" id="emailinput" name="mail" class="form-control" value="{{config['mail']}}" />
+    </div>
+</div>
+<hr />
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">最短发送间隔 (秒)</label>
+    <div class="col-sm-10">
+        <input type="input" name="time_limit" class="form-control" style="width:100px;" value="{{config['time_limit']}}" required />
+    </div>
+</div>
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">微信/邮件触发数</label>
+    <div class="col-sm-10">
+        <input type="input" name="trigger_limit" class="form-control" style="width:100px;" value="{{config['trigger_limit']}}" required />
+    </div>
+</div>
+<div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">短信触发数</label>
+    <div class="col-sm-10">
+        <input type="input" name="sms_trigger_limit" class="form-control" style="width:100px;" value="{{config['sms_trigger_limit']}}" required />
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default">提交</button>
+    </div>
+</div>
+</form>
+{% endblock %}

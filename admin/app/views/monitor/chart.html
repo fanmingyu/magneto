@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>Chart</title>
+
+    <script src="/static/common/js/jquery.min.js"></script>
+    <script src="/static/common/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/common/css/bootstrap.min.css">
+
+    <script src="/static/highcharts/js/highcharts.js"></script>
+
+    <script src="/static/daterangepicker/moment.js"></script>
+    <script src="/static/daterangepicker/daterangepicker.js"></script>
+    <link rel="stylesheet" href="/static/daterangepicker/daterangepicker.css">
+    <style>
+    .chart-nav-btn a { padding:1px 2px; border-radius:3px; margin-right:5px; }
+    .chart-nav-btn .current { background:#337ab7; color:#ffffff; }
+    .chart-title { text-align:center; font-size:18px; font-family:"Lucida Sans Unicode", Arial, Helvetica, sans-serif; margin:5px 0 0 15px; white-space:nowrap; }
+    .chart-stat { text-align:center; font-size:12px; font-family:"Lucida Sans Unicode"; margin:8px 0 5px 0; white-space:nowrap; }
+    </style>
+</head>
+<body>
+<div class="panel panel-default" style="width:100%; margin-bottom:0;">
+    {% if show_toolbar %}
+    <div class="panel-heading" style="padding:8px 15px; height:39px;">
+        {% if count(configArray) > 1 %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-default btn-xs">{{showName}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" style="max-height:300px; overflow-y:auto;">
+                {% for key, item in configArray %}
+                    <li><a href="/monitor/detail?name={{urlencode(expressions[key])}}" target="_blank">{{item['title']}} <small>({{expressions[key]}})</small></a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+            <a href="/monitor/detail?name={{urlencode(expressions[0])}}" target="_blank"><small>{{showNameShort}}</small></a>
+        {% endif %}
+
+        <div class="pull-right chart-nav-btn" style="font-size:12px; margin-top:3px;">
+            <a href="/monitor/alarmEdit?id={{configArray[0]['id']}}" style="padding:0; margin:0;" target="_blank">告警</a>
+            {% if alarmConfig %}
+                <span class="text-muted">[{% for item in alarmConfig %}<code>{{sprintf(alarmType[item['type']], item['value'], item['interval'])}}</code>{% endfor %}]</span>
+            {% else %}
+                <span class="text-muted">[ 无 ]</span>
+            {% endif %}
+            &nbsp;
+            {% if show_gather %}
+            <span class="text-muted">汇总: </span>
+            <a href="?<?php echo http_build_query(array('step' => 1) + $_GET); ?>" {% if step === 1 %}class="current"{% endif %}>1分钟</a>
+            <a href="?<?php echo http_build_query(array('step' => 10) + $_GET); ?>" {% if step === 10 %}class="current"{% endif %}>10分钟</a>
+            <a href="?<?php echo http_build_query(array('step' => 60) + $_GET); ?>" {% if step === 60 %}class="current"{% endif %}>1小时</a>
+            <a href="?<?php echo http_build_query(array('step' => 1440) + $_GET); ?>" {% if step === 1440 %}class="current"{% endif %}>1天</a>
+            <a href="?<?php echo http_build_query(array('wave' => $wave === 1 ? 0 : 1) + $_GET); ?>" {% if wave === 1 %}class="current"{% endif %}>波动图</a>
+            {% endif %}
+            {% if show_export %}
+            <a href="?<?php echo http_build_query(array('export' => 1) + $_GET); ?>" target="_blank">导出</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="panel-body">
+        <div class="chart-title">{{substr(showName, 0, 150)}}</div>
+        <div class="chart-stat">
+            <?php echo date('Y-m-d H:i', $start).' ~ '.date('Y-m-d H:i', $end)
+            .($daysCount > 1 ? " ({$daysCount}天)" : '')
+            .' / 总数:'.Group\Magneto\Plugins\Output::numberFormat($sum)
+            .' / 最大:'.Group\Magneto\Plugins\Output::numberFormat($max)
+            .' / 最小:'.Group\Magneto\Plugins\Output::numberFormat($min)
+            .' / 平均:'.number_format($avg, 2);
+            ?>
+        </div>
+        <div id="container" style="height:{{height}}px"></div>
+    </div>
+    {% if show_toolbar %}
+    <div class="panel-footer" style="font-size:12px; padding:7px 15px; height:39px; line-height:25px;">
+        <form class="form-inline" onsubmit="return false;">
+            <div class="form-group chart-nav-btn">
+                <a href="?<?php echo http_build_query(array('start' => date('Y-m-d', $start - 86400 * $daysCount), 'end' => date('Y-m-d 23:59', $end - 86400 * $daysCount)) + $_GET); ?>">&laquo;前一天</a>
+                <a href="?<?php echo http_build_query(array('start' => date('Y-m-d', $start + 86400 * $daysCount), 'end' => date('Y-m-d 23:59', $end + 86400 * $daysCount)) + $_GET); ?>">后一天&raquo;</a>
+
+                <a {% if start == strtotime(date('Y-m-d H:i')) - 86400 %}class="current"{% endif %}href="?<?php echo http_build_query(array('step' => 1, 'start' => '', 'end' => '') + $_GET); ?>">24小时</a>
+                <a {% if start == strtotime(date('Y-m-d H:i')) - 3600 %}class="current"{% endif %}href="?<?php echo http_build_query(array('step' => 1, 'start' => date('Y-m-d H:i', time() - 3600), 'end' => '') + $_GET); ?>">1小时</a>
+                <a {% if start == strtotime(date('Y-m-d')) %}class="current"{% endif %}href="?<?php echo http_build_query(array('step' => 1, 'start' => date('Y-m-d'), 'end' => '') + $_GET); ?>">今天</a>
+                <a {% if start == strtotime(date('Y-m-d', time() - 86400 * 6)) %}class="current"{% endif %} href="?<?php echo http_build_query(array('step' => 10, 'start' => date('Y-m-d', time() - 86400 * 6), 'end' => '') + $_GET); ?>">近7天</a>
+                <a {% if start == strtotime(date('Y-m-d', time() - 86400 * 29)) %}class="current"{% endif %} href="?<?php echo http_build_query(array('step' => 60, 'start' => date('Y-m-d', time() - 86400 * 29), 'end' => '') + $_GET); ?>">近30天</a>
+                <a {% if start == strtotime(date('Y-m-d', time() - 86400 * 59)) %}class="current"{% endif %} href="?<?php echo http_build_query(array('step' => 1440, 'start' => date('Y-m-d', time() - 86400 * 59), 'end' => '') + $_GET); ?>">近60天</a>
+                {% if show_timeselector %}
+                <input type="text" name="" id="date" class="form-control input-sm" style="height:25px; width:240px; display:inline-block;" />
+                {% endif %}
+            </div>
+
+            <div class="pull-right" style="font-size:12px; color:#aaa;">
+                <i><?php echo number_format(round((microtime(true) - APP_START_TIME) * 1000)); ?>ms</i>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+var autoUpdate = {{autoUpdate}};
+var end = {{end}}
+
+$('.header_name').click(function() {
+    $('#names').slideToggle();
+    return false;
+});
+
+$('#date').daterangepicker({
+    "autoApply": true,
+    "startDate": "{{date('Y-m-d H:i', start)}}",
+    "endDate": "{{date('Y-m-d H:i', end)}}",
+    "maxDate": "{{date('Y-m-d 23:59')}}",
+    "timePicker": true,
+    "timePickerIncrement": 1,
+    "timePicker24Hour": true,
+    "drops": "up"
+}, function(start, end, label) {
+    var params = {{json_encode(_GET)}};
+    params.start = start.format('YYYY-MM-DD HH:mm');
+    params.end = end.format('YYYY-MM-DD HH:mm');
+    location.href = '?' + $.param(params);
+});
+
+$(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+    $('#container').highcharts({
+        chart: {
+            zoomType: 'x',
+            spacingRight: 20,
+            events: {
+                load: function() {
+                    if (!autoUpdate) {
+                        return true;
+                    }
+                    var currentTime = [];
+                    var series = this.series;
+                    for(var i=0; i< series.length; i++) {
+                        currentTime[i] = end
+                    }
+                    setInterval(function() {
+                        for(var i=0; i< series.length; i++) {
+                            $.get('/monitor/getNextPoint', {name : series[i].name, pointIndex : i}, function(result) {
+                                if (result.code == 0 && result.data.pointTime > currentTime[result.data.pointIndex]) {
+                                    series[result.data.pointIndex].addPoint([result.data.pointTime * 1000, result.data.pointValue], true, true);
+                                }
+                                currentTime[result.data.pointIndex] = result.data.pointTime;
+                            }, 'json');
+                        }
+                    }, 30000);
+                }
+            }
+        },
+        title: {
+            text: null
+        },
+        xAxis: {
+            type: 'datetime',
+            maxZoom: 60 * 1000,
+            title: {
+                text: null
+            },
+            dateTimeLabelFormats: {
+                day: '%m-%d',
+                month: '%m-%d',
+                week: '%m-%d'
+            }
+        },
+        yAxis: {
+            title: { text: 'Value/<?php echo $step; ?>min' },
+            min: {% if wave === 1 or min < 0 %}null{% else %}0{% endif %}
+        },
+        tooltip: {
+            crosshairs : true,
+            shared: true,
+            dateTimeLabelFormats: {
+                minute:"%Y-%m-%d %H:%M",
+                hour:"%Y-%m-%d %H:%M %a",
+                day:"%Y-%m-%d %H:%M %a"
+            }
+        },
+        legend: {
+            enabled: <?php echo count($valueArray) > 1 ? 'true' : 'false'; ?>
+        },
+        credits:{
+            enabled:false // 禁用版权信息
+        },
+        plotOptions: {
+            area: {
+                fillColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1},
+                    stops: [
+                        <?php if (count($configArray) === 1) { ?>
+                        [0, Highcharts.getOptions().colors[0]],
+                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        <?php } //endif ?>
+                    ]
+                },
+                lineWidth: 1,
+                marker: {
+                    enabled: false
+                },
+                shadow: false,
+                states: {
+                    hover: {
+                        lineWidth: 1
+                    }
+                },
+                threshold: null
+            }
+        },
+        series: [
+        {% for key, value in valueArray %}
+        {
+            type: 'area',
+            name: '{{substr(expressions[key], 0, 130)}}',
+            pointInterval: 60 * 1000 * {{step}},
+            pointStart: <?php echo $start * 1000; ?>,
+            data: <?php echo json_encode(array_values($value)); ?>
+        },
+        {% endfor %}
+        ]
+    });
+});
+
+if (parent.setTitle) {
+    parent.setTitle('{{_GET['markId']|default('')}}', '{{showNameShort}}');
+}
+</script>
+
+</body></html>

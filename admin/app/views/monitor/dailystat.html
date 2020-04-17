@@ -1,0 +1,40 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+
+<style>
+td { vertical-align: middle !important; }
+</style>
+
+<h2>{{date('Y-m-d', start)}} 按日统计 <small>{{number_format(sum)}}</small></h2>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="350">KEY</th>
+            <th width="350">描述</th>
+            <th width="80">数值</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for id, total in data %}
+    <tr>
+        <td>{{id}}</td>
+        <td><a href="/monitor/detail?name={{config[id]['name']}}">{{config[id]['name']}}</a></td>
+        <td><a href="/monitor/detail?name={{config[id]['name']}}">{{config[id]['title']}}</a></td>
+        <td>{{number_format(total)}}</td>
+        <td title="{{item['owner']}}"><?php echo preg_replace('/\s.*$/', ' <small class="text-muted">等'.(substr_count($item['owner'], ' ') + 1).'人</small>', $item['owner']); ?></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

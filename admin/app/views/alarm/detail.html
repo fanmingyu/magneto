@@ -1,0 +1,47 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Alarm{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation"><a href="/alarm">告警列表</a></li>
+    <li role="presentation"><a href="/alarm/add">添加告警</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<script src="/static/js/Chart.min.js"></script>
+
+<h2>{{config['title']}} <small><i>/ {{config['name']}}</i></small></h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/alarm/edit?id={{config['id']}}">修改配置</a>
+    <a class="btn btn-default" href="/alarm/view?id={{config['id']}}">查看未发告警</a>
+    <a class="btn btn-default" href="/alarm/clear?name={{config['name']}}">清空未发告警 <span class="badge">{{count}}</span></a>
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th width="160">负责人</th>
+        <td style="word-spacing:10px;">{{config['mail']}}</td>
+    </tr>
+    <tr>
+        <th>发送间隔</th>
+        <td>{{config['time_limit']}}秒</td>
+    </tr>
+    <tr>
+        <th>邮件触发数</th>
+        <td>{{config['trigger_limit']}}</td>
+    </tr>
+    <tr>
+        <th>短信触发数</th>
+        <td>{{config['sms_trigger_limit']}}</td>
+    </tr>
+</table>
+
+<iframe src="/monitor/chart?name=ALARM_{{config['name']}}" width="1140" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+<iframe src="/monitor/chart?name=ALARM_{{config['name']}}&start=<?php echo date('Y-m-d', time() - 86400 * 29); ?>&step=1440" width="1140" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+<iframe src="/monitor/chart?name=ALARMSEND_{{config['name']}}" width="1140" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+<iframe src="/monitor/chart?name=ALARMSEND_{{config['name']}}&start=<?php echo date('Y-m-d', time() - 86400 * 29); ?>&step=1440" width="1140" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+
+{% endblock %}

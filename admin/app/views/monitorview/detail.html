@@ -1,0 +1,92 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<script>
+$(function() {
+    $('body').attr({'data-spy' : 'scroll', 'data-target' : '#myScrollspy', 'data-offset' : '200'});
+});
+
+function setTitle(id, title) {
+    $('#point_nav_' + id).html(title);
+}
+</script>
+
+{% if fullscreen is empty %}
+<!--导航栏-->
+<div style="float:right;">
+<div class="panel panel-default" id="myScrollspy" style="position:fixed; top:178px; margin-left:-130px; width:250px;">
+    <div class="panel-heading"></div>
+    <div class="panel-body">
+        <ul class="nav nav-pills nav-stacked">
+            {% for item in viewpoints %}
+                <li><a href="#point_{{item['id']}}" id="point_nav_{{item['id']}}">...</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</div>
+{% endif %}
+
+<h2><?php echo $config['title']; ?> <small>视图详情</small></h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="#" onclick="location.reload();return false;"><span class="glyphicon glyphicon-refresh"></span></a>
+    {% if fullscreen is empty %}
+    <a class="btn btn-default" href="?id={{config['id']}}&fullscreen=1"><span class="glyphicon glyphicon-th"></span></a>
+    {% else %}
+    <a class="btn btn-default" href="?id={{config['id']}}"><span class="glyphicon glyphicon-align-justify"></span></a>
+    {% endif %}
+    <a class="btn btn-default" href="/monitorview/edit?id={{config['id']}}">修改视图</a>
+    <a class="btn btn-danger" href="/monitorview/delete?id={{config['id']}}" onclick="return confirm('确定要删除？');">删除视图</a>
+</div>
+
+<table class="table table-bordered" style="margin-bottom:0; width:1000px;">
+    <tr>
+        <th width="130">负责人</th>
+        <td style="word-spacing:10px;">{{config['owner']}}</td>
+    </tr>
+    <tr>
+        <th>截图推送</th>
+        <td>{% if config['capture_switch'] %}开启{% else %}关闭{% endif %}</td>
+    </tr>
+    {% if config['capture_switch'] %}
+    <tr>
+        <th>截取监控点数</th>
+        <td>{{config['capture_num']}}</td>
+    </tr>
+    <tr>
+        <th>截图推送时间</th>
+        <td>{{config['capture_schedule']}}</td>
+    </tr>
+    {% endif %}
+</table>
+
+{% for key, item in viewpoints %}
+{% if fullscreen is empty %}
+    <div style="margin:10px 0;" id="point_{{item['id']}}">
+        <iframe src="/monitor/chart?markId={{item['id']}}&name={{urlencode(item['points'])}}&step={{item['merge']}}&start={{item['starttime']}}" width="1000" height="439" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+    </div>
+{% else %}
+    <div style="margin:10px 10px 0 0; width:612px; height:380px; float:left;" id="point_{{item['id']}}">
+        <iframe src="/monitor/chart?markId={{item['id']}}&name={{urlencode(item['points'])}}&step={{item['merge']}}&start={{item['starttime']}}&height=210&show_gather=0&show_export=0&show_timeselector=0" width="612px" height="380" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+    </div>
+{% endif %}
+{% else %}
+<div class="panel panel-default" style="width:100%">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+        没有添加任何监控点
+    </div>
+</div>
+{% endfor %}
+
+<div style="height:100px; clear:both;"></div>
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Weixin{% endblock %}
+
+{% block nav %}
+{{ partial('index/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>微信部门列表</h2>
+
+<style>
+.app { width:250px; float:left; padding:10px; }
+.applogo { width:100px; height:100px; border-radius:10px; }
+</style>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="50">ID</th>
+            <th width="200">名称</th>
+            <th width="50">父ID</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in result %}
+        <tr>
+            <td>{{item['id']}}</td>
+            <td>{{item['name']}}</td>
+            <td>{{item['parentid']}}</td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

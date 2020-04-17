@@ -1,0 +1,63 @@
+{% extends "common/layout.html" %}
+
+{% block title %}MAGNETO{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<h1>MAGNETO <small style="font-size:15px;">信息技术基础组件库</small></h1>
+<style>
+.viewlink {
+    line-height:30px;
+    word-spacing:18px;
+    margin:10px 0 0 0;
+}
+.viewlink a {
+    white-space:nowrap;
+}
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">监控视图</div>
+    <div class="panel-body" style="word-spacing:40px;">
+        <div class="well well-sm viewlink">
+            {% for item in views %}
+                <a href="/monitorview/detail?id={{item['id']}}" class="text-mutedd">{{item['title']}}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">列表配置</div>
+    <div class="panel-body" style="word-spacing:40px;">
+        <a href="/monitor">Monitor</a>
+        <a href="/alarm">Alarm</a>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">数据库</div>
+    <div class="panel-body" style="word-spacing:40px;">
+        <a href="/dbtool"><span class="glyphicon glyphicon-th-list" style="margin-right:3px;"></span>表结构查询</a>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+   <div class="panel-heading">其他</div>
+   <div class="panel-body" style="word-spacing:40px;">
+       <a href="http://172.16.1.235:58080/" target="_blank">Jekins<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="http://smsadmin.juren.com/" target="_blank">短信网关<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="http://39.106.16.231:5601/" target="_blank">ELK<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="https://confluence.juren.com/" target="_blank">Confluence<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="http://jrproject.juren.com/secure/Dashboard.jspa" target="_blank">Jira<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="http://juren_doc.juren8888.top/web/#/item/index" target="_blank">接口文档<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="http://gitlab.juren.com/" target="_blank">Gitlab<span class="glyphicon glyphicon-share-alt"></span></a>
+       <a href="https://ops.juren.com/" target="_blank">运维系统<span class="glyphicon glyphicon-share-alt"></span></a>
+   </div>
+</div>
+
+{% endblock %}

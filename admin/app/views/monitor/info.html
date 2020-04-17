@@ -1,0 +1,45 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/tablesorter/style.css" type="text/css" />
+<script src="/static/tablesorter/jquery.tablesorter.js"></script>
+<script>
+$(function() {
+    $('#list').tablesorter({
+        headers: { 4:{sorter:false} }
+    });
+});
+</script>
+
+<h2>运行状态</h2>
+
+<table class="table table-bordered table-hover" id="list">
+    <thead>
+        <tr>
+            <th width="200">表名</th>
+            <th width="100">行数</th>
+            <th width="100">大小</th>
+            <th width="320">最新记录时间</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in result %}
+    <tr>
+        <td>{{item['TABLE_NAME']}}</td>
+        <td>{{number_format(item['TABLE_ROWS'])}}</td>
+        <td><?php echo round(($item['DATA_LENGTH'] + $item['INDEX_LENGTH']) / 1024 / 1024, 2); ?> mb</td>
+        <td><?php echo date('Y-m-d H:i:s', $item['time']); ?></td>
+        <td></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>视图设置 <small><a href="/monitorview/detail?id={{config['id']}}">{{config['title']}}</a></small></h2>
+
+<link href="/static/jquery-ui/jquery-ui.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/tokenfield-typeahead.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/dist/css/bootstrap-tokenfield.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/pygments-manni.css" type="text/css" rel="stylesheet" />
+<link href="/static/tokenfield/docs-assets/css/docs.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/static/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="/static/tokenfield/dist/bootstrap-tokenfield.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/scrollspy.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/affix.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/typeahead.bundle.min.js"></script>
+<script type="text/javascript" src="/static/tokenfield/docs-assets/js/docs.min.js"></script>
+
+<script type="text/javascript">
+$(function() {
+    $('#pointsInput').tokenfield({
+        autocomplete: {
+            source: {{json_encode(names)}},
+            delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        delimiter: [' ']
+    });
+
+    $('#emailinput').tokenfield({
+        autocomplete: {
+            source: {{json_encode(emails)}},
+            delay: 100
+        },
+        showAutocompleteOnFocus: true,
+        delimiter: [' ']
+    });
+});
+</script>
+
+<!--添加-->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        添加监控点
+    </div>
+    <div class="panel-body">
+        <?php if (empty($config['id'])) { ?>
+            请先提交视图设置
+        <?php } else { ?>
+        <div class="alert alert-info" role="alert">
+            <p>1. 多个指标叠加显示用逗号隔开；</p>
+            <p>2. 用%可以进行前缀模糊匹配，如：<a href="/monitor/detail?name=DOBID_%" target="_blank">ORDER_%</a>；</p>
+            <p>3. 指标之间可以进行加减乘除操作，如求成功率：<a href="/monitor/detail?name=DOBID_SUCCESS/DOBID_START" target="_blank">ORDER_SUCCESS/ORDER_START</a>；</p>
+        </div>
+        <form class="form-inline" action="/monitorview/pointsave" method="POST">
+            <input type="hidden" name="viewid" value="{{config['id']}}" />
+            <div class="form-group">
+                <select class="form-control input-sm" name="starttime">
+                    <option value="0">当天</option>
+                    <option selected value="518400">一周</option>
+                    <option value="2505600">一个月</option>
+                </select>
+                <select class="form-control input-sm" name="merge">
+                    <option value="1">1分钟汇总</option>
+                    <option selected value="10">10分钟汇总</option>
+                    <option value="60">1小时汇总</option>
+                    <option value="1440">1天汇总</option>
+                </select>
+                <input type="text" name="points" class="form-control" style="width:600px;" id="pointsInput" value="{{point}}" />
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">添加</button>
+        </form>
+        <?php } //endif ?>
+    </div>
+</div>
+
+<!--修改-->
+{% if count(viewpoints) > 0 %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        已添加的监控点
+    </div>
+    <div class="panel-body">
+        {% for item in viewpoints %}
+        <form class="form-inline" action="/monitorview/pointsave" method="POST" style="margin:0 0 10px 0;">
+            <input type="hidden" name="id" value="{{item['id']}}" />
+            <input type="hidden" name="viewid" value="{{config['id']}}" />
+            <div class="form-group">
+                <select class="form-control input-sm" name="starttime">
+                    <option value="0" {% if item['starttime'] == 0 %}selected{% endif %}>当天</option>
+                    <option value="518400" {% if item['starttime'] == 518400 %}selected{% endif %}>一周</option>
+                    <option value="2505600" {% if item['starttime'] == 2505600 %}selected{% endif %}>一个月</option>
+                </select>
+                <select class="form-control input-sm" name="merge">
+                    <option value="1" {% if item['merge'] == 1 %}selected{% endif %}>1分钟汇总</option>
+                    <option value="10" {% if item['merge'] == 10 %}selected{% endif %}>10分钟汇总</option>
+                    <option value="60" {% if item['merge'] == 60 %}selected{% endif %}>1小时汇总</option>
+                    <option value="1440" {% if item['merge'] == 1440 %}selected{% endif %}>1天汇总</option>
+                </select>
+                <input type="text" name="points" class="form-control" style="width:600px;" value="{{item['points']}}" required />
+                &nbsp;
+                排序
+                <input type="text" name="order" class="form-control" style="width:50px;" value="{{item['order']}}" />
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">修改</button>
+            &nbsp;&nbsp;
+            <a href="/monitorview/pointdelete?id={{item['id']}}&viewid={{config['id']}}" onclick="return confirm('确定要删除？');">删除</a>
+        </form>
+        {% else %}
+            还没有添加监控点
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<form action="/monitorview/save" class="form-horizontal" method="post">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        视图设置
+    </div>
+    <div class="panel-body">
+        <input type="hidden" name="id" value="{{config['id']}}" />
+
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">标题</label>
+            <div class="col-sm-10">
+                <input type="input" name="title" class="form-control" value="{{config['title']}}" placeholder="如：订单相关接口" required />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">负责人</label>
+            <div class="col-sm-10">
+                <input type="input" name="owner" id="emailinput" class="form-control" value="{{config['owner']}}" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        截图推送
+    </div>
+    <div class="panel-body">
+        <input type="hidden" name="id" value="{{config['id']}}" />
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">截图开关</label>
+            <div class="col-sm-10">
+                <label class="radio-inline">
+                  <input type="radio" name="capture_switch" value="1" {% if config['capture_switch'] == 1 %}checked{% endif %}> 开启
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="capture_switch" value="0" {% if config['capture_switch'] == 0 %}checked{% endif %}> 关闭
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">时间点</label>
+            <div class="col-sm-10">
+                <input type="text" name="capture_schedule" class="form-control" value="{{config['capture_schedule']}}" placeholder="hh:mm,hh:mm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <span class="text-muted">多个时间点用逗号隔开</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">截取监控点数</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="capture_num">
+                  {% for i in 1..20 %}
+                    <option {% if config['capture_num']==i %}selected{% endif %}>{{i}}</option>
+                  {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<button type="submit" class="btn btn-default">提交</button>
+</form>
+
+{% endblock %}

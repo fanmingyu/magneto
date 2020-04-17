@@ -1,0 +1,47 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Alarm{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation"><a href="/alarm">告警列表</a></li>
+    <li role="presentation"><a href="/alarm/add">添加告警</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h2>{{config['title']}} <small><i>/ {{config['name']}}</i></small></h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/alarm/detail?id={{config['id']}}">返回告警详情</a>
+</div>
+
+{% for item in result %}
+<?php $item = json_decode($item, true); ?>
+<div class="panel panel-default">
+    <div class="panel-heading">{{item['title']}}</div>
+    <div class="panel-body">
+        {{item['content']}}
+    </div>
+    <div class="panel-footer" style="font-size:12px;">
+        {{date('Y-m-d H:i:s', item['createtime'])}}
+        &nbsp;&nbsp; 服务器IP:{{item['serverIp']}}
+        &nbsp;&nbsp; 日志Id:{{item['logId']}}
+        &nbsp;&nbsp; 文件位置:{{item['file']}}
+    </div>
+</div>
+{% else %}
+    列表为空
+{% endfor %}
+
+<nav>
+    <ul class="pager">
+        第 {{page}} 页
+        &nbsp;
+        <li><a href="?id={{config['id']}}&page={{page - 1}}">上一页</a></li>
+        &nbsp;
+        <li><a href="?id={{config['id']}}&page={{page + 1}}">下一页</a></li>
+    </ul>
+</nav>
+
+{% endblock %}

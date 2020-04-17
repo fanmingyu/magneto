@@ -1,0 +1,137 @@
+{% extends "common/layout.html" %}
+
+{% block title %}Monitor{% endblock %}
+
+{% block nav %}
+{{ partial('monitor/nav') }}
+{% endblock %}
+
+{% block content %}
+<h2>告警设置 <small><a href="/monitor/detail?name={{config['name']}}">{{config['title']}}</a></small></h2>
+
+<div style="text-align:right; margin:0 0 10px 0;">
+    <a class="btn btn-default" href="/monitor/alarmhistory?id={{config['id']}}" target="_blank">查看告警记录</a>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        最大值告警
+    </div>
+    <div class="panel-body">
+        <?php if (!empty($alarmConfig['max'])) { ?>
+        <?php foreach ($alarmConfig['max'] as $item) { ?>
+        <form class="form-inline" action="/monitor/alarmSave" method="POST" style="margin:0 0 10px 0;">
+            <input type="hidden" name="id" value="{{item['id']}}" />
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="max" />
+            <div class="form-group">
+                <input type="text" name="interval" value="{{item['interval']}}" class="form-control" style="width:100px;" />
+                分钟 超过
+                <input type="text" name="value" value="{{item['value']}}" class="form-control" style="width:100px;" />
+                次
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">修改</button>
+            &nbsp;&nbsp;
+            <a href="/monitor/alarmdelete?id={{item['id']}}&pointId={{id}}" onclick="return confirm('确定要删除？');">删除</a>
+        </form>
+        <?php } //foreach ?>
+        <?php } //endif ?>
+        <!-- 添加 -->
+        <form class="form-inline" action="/monitor/alarmSave" method="POST">
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="max" />
+            <div class="form-group">
+                <input type="text" name="interval" class="form-control" style="width:100px;" />
+                分钟 超过
+                <input type="text" name="value" class="form-control" style="width:100px;" />
+                次
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">添加</button>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        最小值告警
+    </div>
+    <div class="panel-body">
+        <p class="text-muted">22:00 - 8:00判断间隔自动扩大10倍(为了防止业务低峰时误报)</p>
+        <?php if (!empty($alarmConfig['min'])) { ?>
+        <?php foreach ($alarmConfig['min'] as $item) { ?>
+        <form class="form-inline" action="/monitor/alarmSave" method="POST" style="margin:0 0 10px 0;">
+            <input type="hidden" name="id" value="{{item['id']}}" />
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="min" />
+            <div class="form-group">
+                <input type="text" name="interval" value="{{item['interval']}}" class="form-control" style="width:100px;" />
+                分钟 低于
+                <input type="text" name="value" value="{{item['value']}}" class="form-control" style="width:100px;" />
+                次
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">修改</button>
+            &nbsp;&nbsp;
+            <a href="/monitor/alarmdelete?id={{item['id']}}&pointId={{id}}" onclick="return confirm('确定要删除？');">删除</a>
+        </form>
+        <?php } //foreach ?>
+        <?php } //endif ?>
+        <!-- 添加 -->
+        <form class="form-inline" action="/monitor/alarmSave" method="POST">
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="min" />
+            <div class="form-group">
+                <input type="text" name="interval" class="form-control" style="width:100px;" />
+                分钟 低于
+                <input type="text" name="value" class="form-control" style="width:100px;" />
+                次
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">添加</button>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        波动值告警
+    </div>
+    <div class="panel-body">
+        <?php if (!empty($alarmConfig['wave'])) { ?>
+        <?php foreach ($alarmConfig['wave'] as $item) { ?>
+        <form class="form-inline" action="/monitor/alarmSave" method="POST" style="margin:0 0 10px 0;">
+            <input type="hidden" name="id" value="{{item['id']}}" />
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="wave" />
+            <div class="form-group">
+                <input type="text" name="interval" value="{{item['interval']}}" class="form-control" style="width:100px;" />
+                分钟 超过
+                <input type="text" name="value" value="{{item['value']}}" class="form-control" style="width:100px;" />
+                %
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">修改</button>
+            &nbsp;&nbsp;
+            <a href="/monitor/alarmdelete?id={{item['id']}}&pointId={{id}}" onclick="return confirm('确定要删除？');">删除</a>
+        </form>
+        <?php } //foreach ?>
+        <?php } //endif ?>
+        <!-- 添加 -->
+        <form class="form-inline" action="/monitor/alarmSave" method="POST">
+            <input type="hidden" name="pointId" value="{{id}}" />
+            <input type="hidden" name="type" value="wave" />
+            <div class="form-group">
+                <input type="text" name="interval" class="form-control" style="width:100px;" />
+                分钟 超过
+                <input type="text" name="value" class="form-control" style="width:100px;" />
+                %
+            </div>
+            &nbsp;&nbsp;
+            <button type="submit" class="btn btn-default">添加</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

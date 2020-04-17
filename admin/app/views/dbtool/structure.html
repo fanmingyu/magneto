@@ -1,0 +1,26 @@
+{% extends "common/layout.html" %}
+
+{% block title %}DbTool{% endblock %}
+
+{% block nav %}
+<ul class="nav navbar-nav">
+    <li role="presentation" class="active"><a href="/dbtool">表列表</a></li>
+    <li role="presentation"{% if controller == 'dbconfig' %} class="active"{% endif %}><a href="/dbconfig">数据库</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h2>表结构查看</h2>
+
+<a name="hourStat"></a>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <a href="/dbtool/?db={{db}}">{{db}}</a>
+        /
+        <a href="/dbtool/structure/?db={{db}}&table={{table}}">{{table}}</a>
+        </div>
+    <div class="panel-body">
+        <pre>{{result}}</pre>
+    </div>
+</div>
+{% endblock %}

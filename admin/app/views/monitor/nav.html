@@ -1,0 +1,6 @@
+<ul class="nav navbar-nav">
+    <li role="presentation"{% if controller === 'monitor' AND action === 'index' %} class="active"{% endif %}><a href="/monitor">监控列表</a></li>
+    <li role="presentation" class="{% if controller === 'monitorview' %} active{% endif %}"><a href="/monitorview">视图列表</a></li>
+    <li role="presentation"{% if controller === 'monitor' AND action === 'alarmhistory' %} class="active"{% endif %}><a href="/monitor/alarmhistory">告警记录</a></li>
+    <li role="presentation"{% if controller === 'monitor' AND action === 'info' %} class="active"{% endif %}><a href="/monitor/info">状态</a></li>
+</ul>
